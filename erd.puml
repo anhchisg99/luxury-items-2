@@ -1,0 +1,352 @@
+@startuml
+
+entity User {
+  user_id
+  ssid
+  *username
+  *first_name
+  *last_name
+  *email
+  *phone
+  addresses
+  *default_language
+  *default_currency
+  *created_at
+  avatar
+  amount_spent
+  password
+}
+
+entity Region {
+  region_id
+  ascii_name
+  name
+  slug
+  display_name
+}
+
+
+entity Sub_Region {
+  sub_region_id
+  region_id
+  ascii_name
+  name
+  slug
+  display_name
+  postal
+}
+
+entity Address {
+  address_id
+  user_id
+  region_id
+  sub_region_id
+  address
+  name
+  description
+}
+
+entity Payment_Method {
+  method_id
+  name: "paypal"
+  type: ""
+  bank_id
+  ??
+}
+
+' 1 user can have many payment methods, while 1 payment methods can belong to many users
+entity User_Payment_Method_Detail {
+  user_payment_method_detail_id
+  user_id
+  method_id
+  billing_address_id
+  'credit card info - need to be more specific
+  CC_name
+  CC_last_4_digits
+  CC_token
+  'bank info - no information yet
+}
+
+' need to be more specific
+entity Billing_Address {
+  billing_address_id
+  user_id
+  name
+  city
+  state
+  zip
+  address
+}
+
+entity Vendor_User {
+  *is_verified
+  favorite_customer_chat_list
+}
+
+entity Customer_User {
+  is_verifed
+  favorite_vendor_chat_list
+  wishlist
+}
+
+entity Product {
+  *product_id
+  *product_name
+  *created_at
+  *updated_at
+  product_image_urls
+  is_verifed
+  description
+  product_brand_id
+  'todo: 
+  user_marked_as_wishlish 
+  user_put_cart
+  rating
+}
+
+entity Wishlist {
+  user_id
+  product_ids
+}
+
+entity Product_Product_Category {
+  product_id
+  category_id
+}
+
+entity Product_Category {
+  *category_id
+  *category_name
+  *created_at
+  *updated_at
+  category_image_urls
+}
+
+entity Product_Brand {  
+  *brand_id
+  *brand_name
+  *brand_origin
+  *created_at
+  *updated_at
+  brand_image_urls
+  description
+}
+
+entity Product_Storage {
+  *product_id
+  *quantity
+  *stock
+  *created_at
+  *updated_at
+  *price
+}
+
+entity Currency {
+  *currency_id
+  *currency_name
+  *currency_abbreviation
+  *currency_rate
+}
+
+entity Order {
+  order_id
+  order_detail_id
+  customer_id
+  vendor_id
+  user_payment_method_detail_id
+  delivery_detail_id
+}
+
+entity Order_Detail {
+  order_detail_id
+  cart_id
+  total_cart_price
+}
+
+entity Payment_Detail {
+  method_id
+  user_id
+  total_amount
+  order_id
+}
+
+entity Cart {
+  cart_id
+  user_id
+  total_cart_price
+}
+
+entity Cart_Item {
+  cart_id
+  product_id
+  quantity
+  total_price
+}
+
+entity Article {
+  article_id
+  article_header_url
+  title: 100 characters
+  brief
+  summary
+  content
+  author_name 
+  vendor_ids
+  product_ids
+  created_at
+  updated_at
+  category_id
+  likes
+  rating
+  comments
+  share_count
+  is_editor_pick
+}
+
+entity Rating_Product {
+  customer_id
+  product_id
+  rating_star
+}
+
+entity Rating_Vendor {
+  vendor_id
+  customer_id
+  rating_star
+}
+
+entity Rating_Customer {
+  vendor_id
+  customer_id
+  rating_star
+}
+
+entity Comment {
+  user_id
+  article_id
+  created_at
+  content
+  parent_comment_id
+  liked_user
+}
+
+entity Delivery_Method {
+  method_id
+  name
+  type
+  delivery_company_id
+}
+
+entity Delivery_Detail {
+  user_id
+  method_id
+  destination
+
+}
+
+entity Ads_Package {
+  package_id
+  ' type: Premium | Standard | Gold
+  package_type
+}
+
+entity Ads {
+  ads_name
+  vendor_id
+  ads_package_id
+  description
+  price
+  currency_id
+  valid_date
+  created_at
+  support_details
+  is_custom_ads
+  target_region
+  target_user
+  budget
+  duration
+  is_renewable
+  minimum_spent_amount
+  is_custom_ads
+  requirement_description
+}
+
+entity Discount {
+  discount_id
+  product_id
+  vendor_ids
+  discount_amount
+  duration
+  start_date
+  is_renewable
+}
+
+entity Voucher {
+  voucher_id
+  description
+  name
+  discount_id
+}
+
+entity Luxury_Items_Information {
+  phone
+  email
+}
+
+entity FAQ {
+  question
+  answer
+  rating
+}
+
+Vendor_User --|> User
+Customer_User --|> User
+Product ||--|| Product_Product_Category
+Product_Product_Category ||--|| Product_Category
+Product_Brand ||--|{ Product
+Product_Storage ||--|| Product
+Payment_Detail ||--|| User_Payment_Method_Detail
+Payment_Detail ||--|| Customer_User
+Payment_Detail ||--|| Order
+Order ||--|| User_Payment_Method_Detail
+Order }|--|| Vendor_User
+Order }|--|| Customer_User
+Cart ||--|| Order_Detail
+Order ||--|| Order_Detail
+Cart ||--o{ Cart_Item
+Cart ||--|| User
+Cart_Item ||--|| Product
+Article ||--|| Product 
+Article ||--|| Vendor_User
+Article ||--|| Product_Category
+Rating_Product ||--|| Customer_User
+Rating_Product ||--|| Product
+Rating_Vendor ||--|| Vendor_User
+Rating_Vendor ||--|| Customer_User
+Rating_Customer ||--|| Vendor_User
+Rating_Customer ||--|| Customer_User
+Comment |o--o| Comment
+Comment ||--|| Customer_User
+Comment ||--|| Article
+Comment ||--o{ Customer_User
+Order ||--|| Delivery_Detail
+Delivery_Detail ||--|{ Delivery_Method
+Ads_Package ||--|{ Ads
+Ads ||--|| Vendor_User
+Ads ||--|| Currency
+Discount ||--|{ Product
+Discount ||--|{ Vendor_User
+Region ||--o{ Sub_Region
+Region ||--o{ Address
+Sub_Region ||--o{ Address
+User ||--o{ Address
+Customer_User ||--|| Wishlist
+Wishlist ||--o{ Product
+User }|--|| Currency
+Billing_Address ||--|{ User_Payment_Method_Detail
+Payment_Method ||--|| User_Payment_Method_Detail
+User ||--|{ User_Payment_Method_Detail
+User ||--|{ Billing_Address
+Voucher ||--|| Discount
+
+@enduml
